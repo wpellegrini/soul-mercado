@@ -1,15 +1,21 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseEnv } from "@/lib/supabase/env";
+import { contentSecurityPolicy, newNonce } from "@/lib/security";
 
 const PUBLIC_PATHS = ["/login", "/auth"];
 
 /**
- * Roda antes de cada página: renova a sessão do Supabase (cookies)
- * e manda para /login quem não estiver autenticado.
+ * Roda antes de cada página: aplica a política de segurança de conteúdo,
+ * renova a sessão do Supabase (cookies) e manda para /login quem não estiver autenticado.
  */
 export async function proxy(request: NextRequest) {
+  // Código único desta página: o Next.js o coloca nos próprios scripts
+  const csp = contentSecurityPolicy(newNonce());
+  request.headers.set("Content-Security-Policy", csp);
+
   let response = NextResponse.next({ request });
+  response.headers.set("Content-Security-Policy", csp);
 
   let env: ReturnType<typeof supabaseEnv>;
   try {
@@ -33,6 +39,7 @@ export async function proxy(request: NextRequest) {
       setAll(cookiesToSet, headers) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
+        response.headers.set("Content-Security-Policy", csp);
         cookiesToSet.forEach(({ name, value, options }) =>
           response.cookies.set(name, value, options),
         );
