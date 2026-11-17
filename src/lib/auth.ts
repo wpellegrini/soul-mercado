@@ -10,7 +10,12 @@ export const getSession = cache(async () => {
   const userId = data?.claims?.sub;
   if (!userId) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).single<Profile>();
+  let { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle<Profile>();
+  if (!profile) {
+    // Conta criada antes deste sistema (projeto Supabase compartilhado): cria o perfil agora
+    await supabase.rpc("ensure_profile");
+    ({ data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle<Profile>());
+  }
   if (!profile) redirect("/login");
 
   return { supabase, profile };

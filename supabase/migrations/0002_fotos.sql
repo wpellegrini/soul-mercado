@@ -12,15 +12,15 @@ on conflict (id) do update
       file_size_limit = excluded.file_size_limit,
       allowed_mime_types = excluded.allowed_mime_types;
 
-create policy "Estoque envia fotos de produtos"
+create policy "Mercado: estoque envia fotos de produtos"
   on storage.objects for insert to authenticated
-  with check (bucket_id = 'produtos' and public.can_stock());
+  with check (bucket_id = 'produtos' and mercado.can_stock());
 
-create policy "Estoque troca fotos de produtos"
+create policy "Mercado: estoque troca fotos de produtos"
   on storage.objects for update to authenticated
-  using (bucket_id = 'produtos' and public.can_stock())
-  with check (bucket_id = 'produtos' and public.can_stock());
+  using (bucket_id = 'produtos' and mercado.can_stock())
+  with check (bucket_id = 'produtos' and mercado.can_stock());
 
-create policy "Estoque apaga fotos de produtos"
+create policy "Mercado: estoque apaga fotos de produtos"
   on storage.objects for delete to authenticated
-  using (bucket_id = 'produtos' and public.can_stock());
+  using (bucket_id = 'produtos' and mercado.can_stock());

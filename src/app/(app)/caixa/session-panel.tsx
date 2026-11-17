@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { DbClient } from "@/lib/supabase/server";
 import { formatDateTime, formatMoney, formatTime, PAYMENT_LABEL, PAYMENT_METHODS, type CashSession, type CashSummary } from "@/lib/types";
 import ActionForm from "@/components/action-form";
 import { cashMovement, closeCash } from "./actions";
@@ -13,7 +13,7 @@ export default async function SessionPanel({
   operator,
   canOperate,
 }: {
-  supabase: SupabaseClient;
+  supabase: DbClient;
   session: CashSession;
   operator: string;
   canOperate: boolean;

@@ -53,7 +53,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     return {
       error:
         error.code === "user_already_exists"
-          ? "Já existe uma conta com este e-mail."
+          ? "Este e-mail já tem conta (pode ser de outro sistema Soul, como o de hospedagem). Use a aba Entrar, com a mesma senha."
           : `Não foi possível criar a conta: ${error.message}`,
     };
   }

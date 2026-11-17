@@ -63,12 +63,26 @@ uma venda é gravada inteira ou não é gravada, e um caixa não enxerga as vend
 
 ### 1. Banco de dados (Supabase)
 
-1. Crie uma conta gratuita em <https://supabase.com> e um novo projeto (região **South America (São Paulo)**).
+Todas as tabelas ficam no schema **`mercado`**, então o sistema pode usar um projeto Supabase novo
+**ou dividir um projeto que já existe** com outro sistema (ex.: o Soul Hospedagem), sem misturar dados.
+Útil no plano gratuito, que permite só 2 projetos ativos.
+
+1. Use um projeto existente ou crie um em <https://supabase.com> (região **South America (São Paulo)**).
 2. Abra **SQL Editor → New query**, cole todo o conteúdo de `supabase/migrations/0001_mercado.sql` e clique em **Run**.
    O script já cria 7 seções e 24 produtos de exemplo (pães, frios, bebidas, mercearia...): edite ou desative depois.
 3. Em seguida, rode também `supabase/migrations/0002_fotos.sql` (cria o espaço para as fotos dos produtos).
-4. Em **Project Settings → API Keys**, copie a **Project URL** e a **Publishable key**.
-5. Em **Authentication → URL Configuration**, preencha **Site URL** com o endereço do sistema (no início, `http://localhost:3000`).
+4. **Exponha o schema na API:** **Project Settings → Data API → Exposed schemas**, adicione `mercado` e salve.
+   Sem isso, o sistema mostra erro ao carregar os dados.
+5. Em **Project Settings → API Keys**, copie a **Project URL** e a **Publishable key**.
+6. Em **Authentication → URL Configuration**:
+   - projeto novo: preencha **Site URL** com o endereço do sistema (no início, `http://localhost:3000`);
+   - projeto compartilhado: **não mude** a Site URL do outro sistema; só adicione o endereço do Soul Mercado
+     em **Redirect URLs** (ex.: `https://mercado.suaempresa.com.br/**`).
+
+**Projeto compartilhado: como ficam os logins.** A conta (e-mail e senha) vale para os dois sistemas,
+mas o perfil e as permissões são separados: ser gerente do mercado não dá acesso ao hotel, e vice-versa.
+Quem já tem conta no outro sistema só precisa **entrar** (não criar conta de novo): o perfil do mercado é criado
+no primeiro acesso. **O primeiro a entrar vira gerente do mercado**, então entre primeiro com a conta do dono.
 
 ### 2. Rodar no computador
 
@@ -113,7 +127,9 @@ Para testes, dá para desligar em **Authentication → Sign In / Providers → E
 
 ```bash
 npm test          # os dois abaixo
-npm run test:db   # 79 regras do banco em um PostgreSQL local (PGlite)
+npm run test:db   # 81 regras do banco em um PostgreSQL local (PGlite)
+# projeto compartilhado: roda antes a migração do outro sistema e confere que convivem
+HOSPEDAGEM_SQL=../soul-hospedagem/supabase/migrations/0001_hospedagem.sql npm run test:db
 npm run test:lib  # 32 regras do PDV: código de barras, etiqueta da balança, peso, troco
 ```
 
